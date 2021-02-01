@@ -6,7 +6,7 @@ WorldInfo {
     "The robot can be stopped by the virtual walls emitting IR light."
   ]
   title "polyCreate"
-  inkEvaporation 0.5
+  inkEvaporation 0.2
   coordinateSystem "NUE"
 }
 Viewpoint {
