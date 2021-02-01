@@ -301,6 +301,8 @@ DEF IROBOT_CREATE Create {
 }
 Robot {
   children [
+    GPS {
+    }
     Shape {
       appearance Parquetry {
         type "light strip"
