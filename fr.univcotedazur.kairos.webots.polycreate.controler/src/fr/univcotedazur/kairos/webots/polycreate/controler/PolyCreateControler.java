@@ -24,6 +24,9 @@ public class PolyCreateControler extends Robot {
 	static double AXLE_LENGTH = 0.271756;
 	static double ENCODER_RESOLUTION = 507.9188;
 
+	/**
+	 * the inkEvaporation parameter in the WorldInfo element of the robot scene may be interesting to access
+	 */
 	public Pen pen = null;
 
 	public Motor[] gripMotors = new Motor[2];
@@ -65,6 +68,7 @@ public class PolyCreateControler extends Robot {
 		gripMotors[0] = createMotor("7");
 		gripMotors[1] = createMotor("7 left");
 		gripperSensor = createDistanceSensor("gripper middle distance sensor");
+		gripperSensor.enable(timestep);
 
 		leftMotor = createMotor("left wheel motor");
 		rightMotor = createMotor("right wheel motor");
@@ -128,6 +132,14 @@ public class PolyCreateControler extends Robot {
 	void closeGripper() {
 		gripMotors[0].setPosition(-0.2);
 		gripMotors[1].setPosition(-0.2);
+	}
+	
+	/**
+	 * give the obstacle distance from the gripper sensor. max distance (i.e., no obstacle detected) is 1500
+	 * @return
+	 */
+	double getObjectDistanceToGripper() {
+		return gripperSensor.getValue();
 	}
 
 	boolean isThereCollisionAtLeft() {
@@ -235,6 +247,7 @@ public class PolyCreateControler extends Robot {
 					double[] frontObjPos = obj.getPosition();
 					System.out.println("I saw an object on front Camera at : "+frontObjPos[0]+","+frontObjPos[1]);
 				}
+				System.out.println("gripper distance sensor is "+controler.getObjectDistanceToGripper());
 				if (controler.isThereVirtualwall()) {
 					System.out.println("Virtual wall detected\n");
 					controler.turn(Math.PI);
