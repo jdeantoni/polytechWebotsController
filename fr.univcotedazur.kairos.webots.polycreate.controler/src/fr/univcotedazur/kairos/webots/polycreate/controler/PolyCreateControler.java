@@ -268,7 +268,7 @@ public class PolyCreateControler extends Robot {
 					double[] backObjPos = obj.getPosition();
 					System.out.println("I saw an object on back Camera at : "+backObjPos[0]+","+backObjPos[1]);
 				}
-				CameraRecognitionObject[] frontObjs = controler.backCamera.getCameraRecognitionObjects();
+				CameraRecognitionObject[] frontObjs = controler.frontCamera.getCameraRecognitionObjects();
 				if (frontObjs.length > 0) {
 					CameraRecognitionObject obj = frontObjs[0];
 					double[] frontObjPos = obj.getPosition();
