@@ -41,6 +41,11 @@ public class PolyCreateControler extends Robot {
 	 */
 	public Pen pen = null;
 
+	public Pen getPen() {
+		return pen;
+	}
+
+
 	public Motor[] gripMotors = new Motor[2];
 	public DistanceSensor gripperSensor = null;
 
@@ -141,12 +146,12 @@ public class PolyCreateControler extends Robot {
 	}
 
 
-	void openGripper() {
+	public void openGripper() {
 		gripMotors[0].setPosition(0.5);
 		gripMotors[1].setPosition(0.5);
 	}
 
-	void closeGripper() {
+	public void closeGripper() {
 		gripMotors[0].setPosition(-0.2);
 		gripMotors[1].setPosition(-0.2);
 	}
@@ -155,66 +160,66 @@ public class PolyCreateControler extends Robot {
 	 * give the obstacle distance from the gripper sensor. max distance (i.e., no obstacle detected) is 1500
 	 * @return
 	 */
-	double getObjectDistanceToGripper() {
+	public double getObjectDistanceToGripper() {
 		return gripperSensor.getValue();
 	}
 
-	boolean isThereCollisionAtLeft() {
+	public boolean isThereCollisionAtLeft() {
 		return (leftBumper.getValue() != 0.0);
 	}
 
-	boolean isThereCollisionAtRight() {
+	public boolean isThereCollisionAtRight() {
 		return (rightBumper.getValue() != 0.0);
 	}
 
-	void flushIRReceiver() {
+	public void flushIRReceiver() {
 		while (receiver.getQueueLength() > 0)
 			receiver.nextPacket();
 	}
 
-	boolean isThereVirtualwall() {
+	public boolean isThereVirtualwall() {
 		return (receiver.getQueueLength() > 0);
 	}
 
-	boolean isThereCliffAtLeft() {
+	public boolean isThereCliffAtLeft() {
 		return (leftCliffSensor.getValue() < 100.0 || frontLeftCliffSensor.getValue() < 100.0);
 	}
 
-	boolean isThereCliffAtRight() {
+	public boolean isThereCliffAtRight() {
 		return (rightCliffSensor.getValue() < 100.0 || frontRightCliffSensor.getValue() < 100.0);
 	}
 
-	boolean isThereCliffAtFront() {
+	public boolean isThereCliffAtFront() {
 		return (frontLeftCliffSensor.getValue() < 100.0 || frontRightCliffSensor.getValue() < 100.0);
 	}
 
-	void goForward() {
+	public void goForward() {
 		leftMotor.setVelocity(MAX_SPEED);
 		rightMotor.setVelocity(MAX_SPEED);
 	}
 
-	void goBackward() {
+	public void goBackward() {
 		leftMotor.setVelocity(-HALF_SPEED);
 		rightMotor.setVelocity(-HALF_SPEED);
 	}
 
-	void stop() {
+	public void stop() {
 		leftMotor.setVelocity(NULL_SPEED);
 		rightMotor.setVelocity(NULL_SPEED);
 	}
 
-	void passiveWait(double sec) {
+	public void passiveWait(double sec) {
 		double start_time = getTime();
 		do {
 			step(timestep);
 		} while (start_time + sec > getTime());
 	}
 
-	double randdouble() {
+	public double randdouble() {
 		return  random.nextDouble();
 	}
 
-	void turn(double angle) {
+	public void turn(double angle) {
 		stop();
 		double l_offset = leftSensor.getValue();
 		double r_offset = rightSensor.getValue();
@@ -243,7 +248,7 @@ public class PolyCreateControler extends Robot {
 	 * the reference point of the GPS. The wb_gps_get_speed function returns the current GPS speed in meters per second.
 	 * @return
 	 */
-	double[] getPosition() {
+	public double[] getPosition() {
 		return gps.getValues();
 	}
 
@@ -268,7 +273,7 @@ public class PolyCreateControler extends Robot {
 					double[] backObjPos = obj.getPosition();
 					System.out.println("I saw an object on back Camera at : "+backObjPos[0]+","+backObjPos[1]);
 				}
-				CameraRecognitionObject[] frontObjs = controler.backCamera.getCameraRecognitionObjects();
+				CameraRecognitionObject[] frontObjs = controler.frontCamera.getCameraRecognitionObjects();
 				if (frontObjs.length > 0) {
 					CameraRecognitionObject obj = frontObjs[0];
 					double[] frontObjPos = obj.getPosition();

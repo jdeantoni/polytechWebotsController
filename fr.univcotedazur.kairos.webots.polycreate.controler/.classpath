@@ -1,22 +1,20 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <classpath>
-	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER">
+	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/JavaSE-11">
 		<attributes>
 			<attribute name="module" value="true"/>
 		</attributes>
 	</classpathentry>
-	<classpathentry kind="con" path="org.eclipse.pde.core.requiredPlugins"/>
+	<classpathentry kind="con" path="org.eclipse.pde.core.requiredPlugins">
+		<attributes>
+			<attribute name="org.eclipse.jdt.launching.CLASSPATH_ATTR_LIBRARY_PATH_ENTRY" value="fr.univcotedazur.kairos.webots.polycreate.controler/webotsLibs"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry exported="true" kind="lib" path="webotsLibs/Controller.jar">
+		<attributes>
+			<attribute name="org.eclipse.jdt.launching.CLASSPATH_ATTR_LIBRARY_PATH_ENTRY" value="fr.univcotedazur.kairos.webots.polycreate.controler/webotsLibs"/>
+		</attributes>
+	</classpathentry>
 	<classpathentry kind="src" path="src"/>
-	<classpathentry kind="lib" path="webotsLibs/java/Controller.jar">
-		<attributes>
-			<attribute name="org.eclipse.jdt.launching.CLASSPATH_ATTR_LIBRARY_PATH_ENTRY" value="/snap/webots/current/usr/share/webots/lib/controller"/>
-		</attributes>
-	</classpathentry>
-	<classpathentry kind="lib" path="webotsLibs/java/vehicle.jar">
-		<attributes>
-			<attribute name="org.eclipse.jdt.launching.CLASSPATH_ATTR_LIBRARY_PATH_ENTRY" value="/snap/webots/18/usr/share/webots/lib/controller/java"/>
-		</attributes>
-	</classpathentry>
-	<classpathentry exported="true" kind="lib" path="webotsLibs" sourcepath="webotsLibs"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
