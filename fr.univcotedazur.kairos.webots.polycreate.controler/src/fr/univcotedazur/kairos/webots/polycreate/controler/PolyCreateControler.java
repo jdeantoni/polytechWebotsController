@@ -13,19 +13,24 @@ package fr.univcotedazur.kairos.webots.polycreate.controler;
 
 import java.util.Random;
 
+//import org.eclipse.january.dataset.Dataset;
+//import org.eclipse.january.dataset.DatasetFactory;
+
 import com.cyberbotics.webots.controller.Camera;
 import com.cyberbotics.webots.controller.CameraRecognitionObject;
 import com.cyberbotics.webots.controller.DistanceSensor;
 import com.cyberbotics.webots.controller.GPS;
 import com.cyberbotics.webots.controller.LED;
 import com.cyberbotics.webots.controller.Motor;
+import com.cyberbotics.webots.controller.Node;
 import com.cyberbotics.webots.controller.Pen;
 import com.cyberbotics.webots.controller.PositionSensor;
 import com.cyberbotics.webots.controller.Receiver;
 import com.cyberbotics.webots.controller.Robot;
+import com.cyberbotics.webots.controller.Supervisor;
 import com.cyberbotics.webots.controller.TouchSensor;
 
-public class PolyCreateControler extends Robot {
+public class PolyCreateControler extends Supervisor {
 
 	static int MAX_SPEED = 16;
 	static int NULL_SPEED = 0;
@@ -67,6 +72,10 @@ public class PolyCreateControler extends Robot {
 	public DistanceSensor frontLeftCliffSensor = null;
 	public DistanceSensor frontRightCliffSensor = null;
 
+	public DistanceSensor frontDistanceSensor = null;
+	public DistanceSensor frontLeftDistanceSensor = null;
+	public DistanceSensor frontRightDistanceSensor = null;
+	
 	public Camera frontCamera = null;
 	public Camera backCamera = null;
 
@@ -79,13 +88,19 @@ public class PolyCreateControler extends Robot {
 
 
 
+
 	public PolyCreateControler() {
 		timestep = (int) Math.round(this.getBasicTimeStep());
 
+
+		
+		
+		
+		
 		pen = createPen("pen");
 
-		gripMotors[0] = createMotor("7");
-		gripMotors[1] = createMotor("7 left");
+		gripMotors[0] = createMotor("motor 7");
+		gripMotors[1] = createMotor("motor 7 left");
 		gripperSensor = createDistanceSensor("gripper middle distance sensor");
 		gripperSensor.enable(timestep);
 
@@ -118,7 +133,14 @@ public class PolyCreateControler extends Robot {
 		rightCliffSensor.enable(timestep);
 		frontLeftCliffSensor.enable(timestep);
 		frontRightCliffSensor.enable(timestep);
-
+		
+		frontDistanceSensor = createDistanceSensor("front distance sensor");
+		frontDistanceSensor.enable(timestep);
+		frontLeftDistanceSensor = createDistanceSensor("front left distance sensor");
+		frontLeftDistanceSensor.enable(timestep);
+		frontRightDistanceSensor = createDistanceSensor("front right distance sensor");
+		frontRightDistanceSensor.enable(timestep);
+		
 		frontCamera = createCamera("frontCamera");
 		frontCamera.enable(timestep);
 		frontCamera.recognitionEnable(timestep);
@@ -180,19 +202,7 @@ public class PolyCreateControler extends Robot {
 	public boolean isThereVirtualwall() {
 		return (receiver.getQueueLength() > 0);
 	}
-
-	public boolean isThereCliffAtLeft() {
-		return (leftCliffSensor.getValue() < 100.0 || frontLeftCliffSensor.getValue() < 100.0);
-	}
-
-	public boolean isThereCliffAtRight() {
-		return (rightCliffSensor.getValue() < 100.0 || frontRightCliffSensor.getValue() < 100.0);
-	}
-
-	public boolean isThereCliffAtFront() {
-		return (frontLeftCliffSensor.getValue() < 100.0 || frontRightCliffSensor.getValue() < 100.0);
-	}
-
+	
 	public void goForward() {
 		leftMotor.setVelocity(MAX_SPEED);
 		rightMotor.setVelocity(MAX_SPEED);
@@ -267,37 +277,49 @@ public class PolyCreateControler extends Robot {
 				 * The position and orientation are expressed relatively to the camera (the relative position is the one of the center of the object which can differ from its origin) and the units are meter and radian.
 				 * https://www.cyberbotics.com/doc/reference/camera?tab-language=python#wb_camera_has_recognition
 				 */
-				CameraRecognitionObject[] backObjs = controler.backCamera.getCameraRecognitionObjects();
+				Node anObj = controler.getFromDef("can"); //should not be there, only to have another orientation for testing...
+				controler.passiveWait(0.1);
+				
+			//	System.out.println("the orientation of the can is " +controler.computeRelativeObjectOrientation(anObj.getPosition(),anObj.getOrientation()));
+				
+				System.out.println("    the orientation of the robot is " +Math.atan2(controler.getSelf().getOrientation()[0], controler.getSelf().getOrientation()[8]));
+				System.out.println(" -> front distance: "+controler.frontDistanceSensor.getValue());
+				
+				CameraRecognitionObject[] backObjs = controler.backCamera.getRecognitionObjects();
 				if (backObjs.length > 0) {
 					CameraRecognitionObject obj = backObjs[0];
 					double[] backObjPos = obj.getPosition();
-					System.out.println("I saw an object on back Camera at : "+backObjPos[0]+","+backObjPos[1]);
+					System.out.println("        I saw an object on back Camera at : "+backObjPos[0]+","+backObjPos[1]);
 				}
-				CameraRecognitionObject[] frontObjs = controler.frontCamera.getCameraRecognitionObjects();
+				CameraRecognitionObject[] frontObjs = controler.frontCamera.getRecognitionObjects();
 				if (frontObjs.length > 0) {
 					CameraRecognitionObject obj = frontObjs[0];
 					double[] frontObjPos = obj.getPosition();
-					System.out.println("I saw an object on front Camera at : "+frontObjPos[0]+","+frontObjPos[1]);
+					System.out.println("        I saw an object on front Camera at : "+frontObjPos[0]+","+frontObjPos[1]);
 				}
-				System.out.println("gripper distance sensor is "+controler.getObjectDistanceToGripper());
+				System.out.println("         gripper distance sensor is "+controler.getObjectDistanceToGripper());
 				if (controler.isThereVirtualwall()) {
 					System.out.println("Virtual wall detected\n");
 					controler.turn(Math.PI);
-				} else if (controler.isThereCollisionAtLeft() || controler.isThereCliffAtRight()) {
-					System.out.println("Left obstacle detected\n");
+				} else if (controler.isThereCollisionAtLeft() || controler.frontLeftDistanceSensor.getValue() < 250) {
+					System.out.println("          Left obstacle detected\n");
 					controler.goBackward();
 					controler.passiveWait(0.5);
-					controler.turn(Math.PI * controler.randdouble());
-				} else if (controler.isThereCollisionAtRight()|| controler.isThereCliffAtRight() || controler.isThereCliffAtFront()) {
-					System.out.println("Right obstacle detected\n");
+					controler.turn(Math.PI * controler.randdouble()+0.6);
+				} else if (controler.isThereCollisionAtRight()|| controler.frontRightDistanceSensor.getValue() < 250 || controler.frontDistanceSensor.getValue() < 250) {
+					System.out.println("          Right obstacle detected\n");
 					controler.goBackward();
 					controler.passiveWait(0.5);
-					controler.turn(-Math.PI * controler.randdouble());
+					controler.turn(-Math.PI * controler.randdouble()+0.6);
 				} else {
 					controler.goForward();
 				}
 				controler.flushIRReceiver();
-				controler.step(controler.timestep);
+				
+				
+				
+				
+				
 			}
 
 		}catch (Exception e) {
