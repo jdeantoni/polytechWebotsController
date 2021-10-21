@@ -271,7 +271,7 @@ public class PolyCreateControler extends Supervisor {
 			controler.pen.write(true);
 			controler.ledOn.set(1);
 			controler.passiveWait(0.5);
-
+			System.out.println("let's start");
 			while (true) {
 				/**
 				 * The position and orientation are expressed relatively to the camera (the relative position is the one of the center of the object which can differ from its origin) and the units are meter and radian.
@@ -282,20 +282,28 @@ public class PolyCreateControler extends Supervisor {
 				
 			//	System.out.println("the orientation of the can is " +controler.computeRelativeObjectOrientation(anObj.getPosition(),anObj.getOrientation()));
 				
-				System.out.println("    the orientation of the robot is " +Math.atan2(controler.getSelf().getOrientation()[0], controler.getSelf().getOrientation()[8]));
-				System.out.println(" -> front distance: "+controler.frontDistanceSensor.getValue());
+				System.out.println("->  the orientation of the robot is " +Math.atan2(controler.getSelf().getOrientation()[0], controler.getSelf().getOrientation()[8]));
+				System.out.println("    the position of the robot is " +Math.round(controler.getSelf().getPosition()[0]*100)+";"+Math.round(controler.getSelf().getPosition()[2]*100));
+
+				System.out.println("    front distance: "+controler.frontDistanceSensor.getValue());
 				
 				CameraRecognitionObject[] backObjs = controler.backCamera.getRecognitionObjects();
 				if (backObjs.length > 0) {
 					CameraRecognitionObject obj = backObjs[0];
+					int oid = obj.getId();
+//					Node obj2 = controler.getFromId(oid);
 					double[] backObjPos = obj.getPosition();
+					/**
+					 * The position and orientation are expressed relatively to the camera (the relative position is the one of the center of the object which can differ from its origin) and the units are meter and radian.
+					 */
 					System.out.println("        I saw an object on back Camera at : "+backObjPos[0]+","+backObjPos[1]);
 				}
 				CameraRecognitionObject[] frontObjs = controler.frontCamera.getRecognitionObjects();
 				if (frontObjs.length > 0) {
-					CameraRecognitionObject obj = frontObjs[0];
-					double[] frontObjPos = obj.getPosition();
-					System.out.println("        I saw an object on front Camera at : "+frontObjPos[0]+","+frontObjPos[1]);
+					for(CameraRecognitionObject obj : frontObjs) {
+						double[] frontObjPos = obj.getPosition();
+						System.out.println("        I saw "+obj.getModel()+" on front Camera at : "+((double)Math.round(frontObjPos[1]*1000))/10+"; "+Math.round(frontObjPos[0]*180/Math.PI));
+					}
 				}
 				System.out.println("         gripper distance sensor is "+controler.getObjectDistanceToGripper());
 				if (controler.isThereVirtualwall()) {

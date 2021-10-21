@@ -9,11 +9,10 @@ WorldInfo {
   title "polyCreate"
   inkEvaporation 0.2
   coordinateSystem "NUE"
-  gpsCoordinateSystem "WGS84"
 }
 Viewpoint {
-  orientation 0.5215254562383913 0.7111652805767181 0.471439436404694 4.47477408584082
-  position -4.4881303555030625 7.629022350455598 3.643101832407874
+  orientation 0.7908693603383237 0.46593691125744024 0.39677254139610896 4.638520835158328
+  position -3.155698322165908 13.51253758852321 5.7994523591156675
   near 0.1
   follow "Create"
 }
@@ -81,7 +80,7 @@ Wall {
   size 1.3 2.4 0.3
 }
 Door {
-  hidden translation_5 9.991607541337544e-10 0 0.0010000023849305872
+  hidden translation_5 1.5320464896717567e-09 0 0.0010000036568935666
   translation 0 0 1.65
   rotation 0 1 0 3.14159
   size 1 2.4 0.3
@@ -95,7 +94,7 @@ Table {
   translation 3.86254 0 3.28632
 }
 Solid {
-  translation 0.98 -0.002857742872281216 2.57
+  translation 2.23 -0.00285774 1.9
   rotation 0.8160219595449832 0.3196468170617602 -0.48159534246361985 3.3214645394343465e-17
   children [
     Shape {
@@ -191,8 +190,6 @@ Solid {
   recognitionColors [
     0 0.1 0
   ]
-  linearVelocity 1.6986161932897516e-17 0.003644410505379956 -1.0224308959184884e-16
-  angularVelocity -5.863820196696037e-16 -1.5805755502722447e-17 -8.352898181473229e-17
 }
 Chair {
   translation 3.47751 0 3.72164
@@ -219,7 +216,7 @@ CreateWall {
   rotation 3.9271627561560546e-17 1 -2.3423118527612687e-17 1.5708000000000002
 }
 DEF IROBOT_CREATE Robot {
-  translation -0.01932842500408237 0.04283282458205495 3.6235177888207257
+  translation -0.0192695 0.019531 4.46321
   rotation 0.9994666692397797 0.0029869773387818563 -0.03251853387098509 0.027758964378735217
   children [
     DEF BODY_SLOT Group {
@@ -257,7 +254,7 @@ DEF IROBOT_CREATE Robot {
         GPS {
         }
         Camera {
-          translation 0 0.14 0.08
+          translation -1.06144e-07 0.14 0.12
           rotation 0 1 0 3.14159
           name "backCamera"
           width 256
@@ -267,9 +264,9 @@ DEF IROBOT_CREATE Robot {
           }
         }
         Camera {
-          translation 0 0.1 -0.09
+          translation 0 0.1 -0.2
           name "frontCamera"
-          width 256
+          width 512
           height 256
           recognition Recognition {
             frameColor 0 1 0
@@ -1162,8 +1159,6 @@ DEF IROBOT_CREATE Robot {
           0 0 0
         ]
       }
-      linearVelocity -0.00045080331756029365 0.14020168473197414 -0.10081264073697871
-      angularVelocity 0.5938523969182326 0.00014163473194115728 0.009623384189699036
     }
     DEF CREATE_BUMPER_RIGHT TouchSensor {
       translation 2.43717562543877e-06 -2.82670185723366e-05 -0.00024263418291514682
@@ -1171,8 +1166,6 @@ DEF IROBOT_CREATE Robot {
       name "bumper_right"
       boundingObject USE CREATE_BUMPER_BOUNDING_OBJECT
       physics USE CREATE_BUMPER_PHYSICS
-      linearVelocity -0.0004490778076496368 0.14187028628523624 -0.10094266987001889
-      angularVelocity 0.5938524097668618 0.00014119447345038467 0.009621140708708668
     }
     DEF CREATE_LED_ON LED {
       translation -0.061709 0.034885 -0.0202
@@ -1280,8 +1273,6 @@ DEF IROBOT_CREATE Robot {
   }
   controller "<extern>"
   supervisor TRUE
-  linearVelocity -0.0005639605517835072 0.056308303372527735 -0.09335276760134292
-  angularVelocity 0.5938520007480708 0.00014141419836636638 0.00962227464184108
 }
 Robot {
   children [
@@ -1330,12 +1321,14 @@ Robot {
   supervisor TRUE
 }
 DEF can Can {
-  hidden linearVelocity_0 -6.626287297467259e-19 0.0008075378563822655 3.130788893954287e-17
-  hidden angularVelocity_0 4.2395423647616183e-16 -8.798182858631028e-17 9.337405100926079e-17
-  translation -0.5 0.06085938355443793 3.03
+  translation 0.71 0.0608594 1.94
   rotation -0.7715825068552147 0.45768877526795004 0.4417934133831633 -8.791370622521705e-17
 }
+DEF can Can {
+  translation 0 0.0608594 1.56
+  rotation -0.7715825068552147 0.45768877526795004 0.4417934133831633 -8.791370622521705e-17
+  name "can(1)"
+}
 Apple {
-  hidden linearVelocity_0 0 -0.00019750147241045601 0
-  translation 0.38 0.049789803102537555 2.47
+  translation -0.67 0.0297898 1.92
 }
