@@ -13,9 +13,6 @@ package fr.univcotedazur.kairos.webots.polycreate.controler;
 
 import java.util.Random;
 
-//import org.eclipse.january.dataset.Dataset;
-//import org.eclipse.january.dataset.DatasetFactory;
-
 import com.cyberbotics.webots.controller.Camera;
 import com.cyberbotics.webots.controller.CameraRecognitionObject;
 import com.cyberbotics.webots.controller.DistanceSensor;
@@ -26,9 +23,9 @@ import com.cyberbotics.webots.controller.Node;
 import com.cyberbotics.webots.controller.Pen;
 import com.cyberbotics.webots.controller.PositionSensor;
 import com.cyberbotics.webots.controller.Receiver;
-import com.cyberbotics.webots.controller.Robot;
 import com.cyberbotics.webots.controller.Supervisor;
 import com.cyberbotics.webots.controller.TouchSensor;
+
 
 public class PolyCreateControler extends Supervisor {
 
@@ -40,6 +37,8 @@ public class PolyCreateControler extends Supervisor {
 	static double WHEEL_RADIUS = 0.031;
 	static double AXLE_LENGTH = 0.271756;
 	static double ENCODER_RESOLUTION = 507.9188;
+	static double turnPrecision= 0.05;
+
 
 	/**
 	 * the inkEvaporation parameter in the WorldInfo element of the robot scene may be interesting to access
@@ -75,28 +74,21 @@ public class PolyCreateControler extends Supervisor {
 	public DistanceSensor frontDistanceSensor = null;
 	public DistanceSensor frontLeftDistanceSensor = null;
 	public DistanceSensor frontRightDistanceSensor = null;
-	
+
 	public Camera frontCamera = null;
 	public Camera backCamera = null;
 
 	public Receiver receiver = null;
 
 	public GPS gps = null;
-	
+
 	public 	int timestep = Integer.MAX_VALUE;
 	public 	Random random = new Random();
 
-
-
+	private boolean isTurning = false;
 
 	public PolyCreateControler() {
 		timestep = (int) Math.round(this.getBasicTimeStep());
-
-
-		
-		
-		
-		
 		pen = createPen("pen");
 
 		gripMotors[0] = createMotor("motor 7");
@@ -133,14 +125,14 @@ public class PolyCreateControler extends Supervisor {
 		rightCliffSensor.enable(timestep);
 		frontLeftCliffSensor.enable(timestep);
 		frontRightCliffSensor.enable(timestep);
-		
+
 		frontDistanceSensor = createDistanceSensor("front distance sensor");
 		frontDistanceSensor.enable(timestep);
 		frontLeftDistanceSensor = createDistanceSensor("front left distance sensor");
 		frontLeftDistanceSensor.enable(timestep);
 		frontRightDistanceSensor = createDistanceSensor("front right distance sensor");
 		frontRightDistanceSensor.enable(timestep);
-		
+
 		frontCamera = createCamera("frontCamera");
 		frontCamera.enable(timestep);
 		frontCamera.recognitionEnable(timestep);
@@ -154,7 +146,7 @@ public class PolyCreateControler extends Supervisor {
 
 		gps = createGPS("gps");
 		gps.enable(timestep);
-		
+
 		PolyCreateControler ctrl = this;
 		Runtime.getRuntime().addShutdownHook(new Thread()
 		{
@@ -177,7 +169,7 @@ public class PolyCreateControler extends Supervisor {
 		gripMotors[0].setPosition(-0.2);
 		gripMotors[1].setPosition(-0.2);
 	}
-	
+
 	/**
 	 * give the obstacle distance from the gripper sensor. max distance (i.e., no obstacle detected) is 1500
 	 * @return
@@ -202,7 +194,7 @@ public class PolyCreateControler extends Supervisor {
 	public boolean isThereVirtualwall() {
 		return (receiver.getQueueLength() > 0);
 	}
-	
+
 	public void goForward() {
 		leftMotor.setVelocity(MAX_SPEED);
 		rightMotor.setVelocity(MAX_SPEED);
@@ -218,42 +210,63 @@ public class PolyCreateControler extends Supervisor {
 		rightMotor.setVelocity(NULL_SPEED);
 	}
 
-	public void passiveWait(double sec) {
+	synchronized void passiveWait(double sec) {
 		double start_time = getTime();
 		do {
-			step(timestep);
+			if (!isTurning ) {
+				doStep();
+			}
 		} while (start_time + sec > getTime());
 	}
 
 	public double randdouble() {
 		return  random.nextDouble();
 	}
-
-	public void turn(double angle) {
-		stop();
-		double l_offset = leftSensor.getValue();
-		double r_offset = rightSensor.getValue();
-		step(timestep);
-		double neg = (angle < 0.0) ? -1.0 : 1.0;
-		leftMotor.setVelocity(neg * HALF_SPEED);
-		rightMotor.setVelocity(-neg * HALF_SPEED);
-		double orientation;
-		do {
-			double l = leftSensor.getValue() - l_offset;
-			double r = rightSensor.getValue() - r_offset;
-			double dl = l * WHEEL_RADIUS;                 // distance covered by left wheel in meter
-			double dr = r * WHEEL_RADIUS;                 // distance covered by right wheel in meter
-			orientation = neg * (dl - dr) / AXLE_LENGTH;  // delta orientation in radian
-			step(timestep);
-		} while (orientation < neg * angle);
-		stop();
+	
+	synchronized void doStep() {
 		step(timestep);
 	}
 
 	/**
+	 * 
+	 * @return the orientation wrt the north in [0; 2PI[
+	 */
+	public double getOrientation() {
+		double res = Math.acos(this.getSelf().getOrientation()[0]);
+		if(this.getSelf().getOrientation()[1] < 0) {
+			return (2*Math.PI) - res;
+		}else {
+			return res;
+		}
+	}
+	/**
+	 * turn the robot to getOrientation()+angle
+	 * @param angle: the angle to apply
+	 */
+	void turn(double angle) {
+		this.isTurning=true;
+		stop();
+		doStep();
+		double direction = (angle < 0.0) ? -1.0 : 1.0;
+		leftMotor.setVelocity(direction * HALF_SPEED);
+		rightMotor.setVelocity(-direction * HALF_SPEED);
+		double targetOrientation = (this.getOrientation()+angle)%(2*Math.PI);
+		double actualOrientation;
+		System.out.println("do");
+		do {
+			doStep();
+			actualOrientation = this.getOrientation();
+		} while (!(actualOrientation > (targetOrientation -turnPrecision) && actualOrientation < (targetOrientation + turnPrecision)));
+		stop();
+		doStep();
+		this.isTurning=false;
+	}
+
+
+	/**
 	 * The values are returned as a 3D-vector, therefore only the indices 0, 1, and 2 are valid for accessing the vector.
-	 * The returned vector indicates the absolute position of the GPS device. This position can either be expressed in the 
-	 * cartesian coordinate system of Webots or using latitude-longitude-altitude, depending on the value of the 
+	 * The returned vector indicates the absolute position of the GPS device. This position can either be expressed in the
+	 * cartesian coordinate system of Webots or using latitude-longitude-altitude, depending on the value of the
 	 * gpsCoordinateSystem field of the WorldInfo node. The gpsReference field of the WorldInfo node can be used to define
 	 * the reference point of the GPS. The wb_gps_get_speed function returns the current GPS speed in meters per second.
 	 * @return
@@ -282,7 +295,7 @@ public class PolyCreateControler extends Supervisor {
 				
 			//	System.out.println("the orientation of the can is " +controler.computeRelativeObjectOrientation(anObj.getPosition(),anObj.getOrientation()));
 				
-				System.out.println("->  the orientation of the robot is " +Math.acos(controler.getSelf().getOrientation()[0]));
+				System.out.println("->  the orientation of the robot is " +controler.getOrientation());
 				System.out.println("    the position of the robot is " +Math.round(controler.getSelf().getPosition()[0]*100)+";"+Math.round(controler.getSelf().getPosition()[2]*100));
 
 				System.out.println("    front distance: "+controler.frontDistanceSensor.getValue());
@@ -290,8 +303,6 @@ public class PolyCreateControler extends Supervisor {
 				CameraRecognitionObject[] backObjs = controler.backCamera.getRecognitionObjects();
 				if (backObjs.length > 0) {
 					CameraRecognitionObject obj = backObjs[0];
-					int oid = obj.getId();
-//					Node obj2 = controler.getFromId(oid);
 					double[] backObjPos = obj.getPosition();
 					/**
 					 * The position and orientation are expressed relatively to the camera (the relative position is the one of the center of the object which can differ from its origin) and the units are meter and radian.
@@ -326,13 +337,13 @@ public class PolyCreateControler extends Supervisor {
 				
 				
 				
-				
-				
+						
 			}
 
 		}catch (Exception e) {
 			controler.delete();
 		}
+
 
 
 
