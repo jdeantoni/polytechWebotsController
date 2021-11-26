@@ -282,7 +282,7 @@ public class PolyCreateControler extends Supervisor {
 				
 			//	System.out.println("the orientation of the can is " +controler.computeRelativeObjectOrientation(anObj.getPosition(),anObj.getOrientation()));
 				
-				System.out.println("->  the orientation of the robot is " +Math.atan2(controler.getSelf().getOrientation()[0], controler.getSelf().getOrientation()[8]));
+				System.out.println("->  the orientation of the robot is " +Math.acos(controler.getSelf().getOrientation()[0]));
 				System.out.println("    the position of the robot is " +Math.round(controler.getSelf().getPosition()[0]*100)+";"+Math.round(controler.getSelf().getPosition()[2]*100));
 
 				System.out.println("    front distance: "+controler.frontDistanceSensor.getValue());
