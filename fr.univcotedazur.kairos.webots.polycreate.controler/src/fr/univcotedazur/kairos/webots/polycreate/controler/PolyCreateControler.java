@@ -251,6 +251,7 @@ public class PolyCreateControler extends Supervisor {
 		leftMotor.setVelocity(direction * HALF_SPEED);
 		rightMotor.setVelocity(-direction * HALF_SPEED);
 		double targetOrientation = (this.getOrientation()+angle)%(2*Math.PI);
+		if (targetOrientation < 0) targetOrientation += 2*Math.PI;
 		double actualOrientation;
 		System.out.println("do");
 		do {
